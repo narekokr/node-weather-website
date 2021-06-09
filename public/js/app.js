@@ -1,5 +1,3 @@
-console.log('js is loaded')
-
 const form = document.querySelector('form')
 const search = document.querySelector('input')
 const firstP = document.querySelector('.first')
