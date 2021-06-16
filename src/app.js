@@ -4,8 +4,6 @@ const hbs = require('hbs')
 const geocode = require('./utils/geocode')
 const forecast = require('./utils/forecast')
 
-console.log()
-
 const app = express()
 const port = process.env.PORT || 3000
 
@@ -46,40 +44,40 @@ app.get('/help', (req, res) => {
 
 
 app.get('/weather', (req, res) => {
-    if (!req.query.address) {
+    if (!req.query.address && !req.query.coords) {
         return res.send({
             error: 'Address must be provided'
         })
     }
-    const address = req.query.address
-    geocode(address, (error, { latitude, longitude, location } = {}) => {
-        if (error) {
-            return res.send({ error })
-        }
-        forecast(latitude, longitude, (error, data) => {
+    if (req.query.coords) {
+        const coords = req.query.coords.split(',')
+        forecast(+coords[0], +coords[1], (error, data) => {
             if (error) {
                 return res.send({ error })
             }
             res.send({
-                address,
-                forecast: data,
-                location
+                forecast: data
             })
         })
-    })
-})
-
-app.get('/products', (req, res) => {
-    if (!req.query.search) {
-        return res.send({
-            error: 'No search term'
+    } else {
+        const address = req.query.address
+        geocode(address, (error, { latitude, longitude, location } = {}) => {
+            if (error) {
+                return res.send({ error })
+            }
+            forecast(latitude, longitude, (error, data) => {
+                if (error) {
+                    return res.send({ error })
+                }
+                res.send({
+                    address,
+                    forecast: data,
+                    location
+                })
+            })
         })
     }
 
-    console.log(req.query)
-    res.send({
-        products: []
-    })
 })
 
 app.get('/help/*', (req, res) => {
